@@ -94,6 +94,25 @@ fn test_nested_pkg_via_dotted_import() {
 	assert got == ['app/app_test.v', 'lib/util/util_test.v']
 }
 
+fn test_qualified_import_propagates() {
+	// A fully-qualified import with leading segments the tree doesn't know
+	// (`gil_silva.q.q`) must still resolve to the in-tree 'q.q' package —
+	// the dotted-suffix matching exists for exactly this shape.
+	root := os.join_path(os.temp_dir(), 'vaffected-qual-${os.getpid()}')
+	os.mkdir_all(os.join_path(root, 'q', 'q'), os.MkdirParams{}) or { panic(err.msg()) }
+	os.mkdir_all(os.join_path(root, 'app'), os.MkdirParams{}) or { panic(err.msg()) }
+	os.write_file(os.join_path(root, 'q', 'q', 'q.v'), 'module q\n')!
+	os.write_file(os.join_path(root, 'q', 'q', 'q_test.v'), 'module q\n')!
+	os.write_file(os.join_path(root, 'app', 'app.v'), 'module main\n\nimport gil_silva.q.q\n')!
+	os.write_file(os.join_path(root, 'app', 'app_test.v'), 'module main\n\nimport gil_silva.q.q\n')!
+	defer {
+		os.rmdir_all(root) or {}
+	}
+	out := affected_report(root, ['q/q/q.v']) or { panic(err.msg()) }
+	got := out.split('\n').filter(it.len > 0)
+	assert got == ['app/app_test.v', 'q/q/q_test.v'], got.str()
+}
+
 fn test_error_on_missing_root() {
 	affected_report(os.join_path(@VMODROOT, 'testdata', 'definitely-missing'), ['x.v']) or {
 		assert true

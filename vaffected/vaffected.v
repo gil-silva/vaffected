@@ -112,14 +112,21 @@ fn propagate(files []VFile, mut keys map[string]bool) {
 // import_hits reports whether an import string can resolve to a package key
 // that is in the affected set. Only affected keys matter; unaffected keys
 // are ignored so stdlib and external imports are never spuriously hit.
+// The dotted suffixes of the import itself are tried, mirroring the
+// receiving side (register_suffixes): a fully-qualified import with
+// leading segments the tree doesn't know (gil_silva.vrepo.vrepo) still
+// resolves to the in-tree package ('vrepo').
 fn import_hits(imp string, suffixes map[string][]string, keys map[string]bool) bool {
 	mut plain := imp.trim_space()
 	if at := plain.index(' as ') {
 		plain = plain[..at].trim_space()
 	}
-	for cand in suffixes[plain] {
-		if cand in keys {
-			return true
+	parts := plain.split('.')
+	for start in 0 .. parts.len {
+		for cand in suffixes[parts[start..].join('.')] {
+			if cand in keys {
+				return true
+			}
 		}
 	}
 	return false
