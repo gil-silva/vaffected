@@ -2,6 +2,12 @@
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
+# vaffected
+
+"Run only what a change can affect": changed .v paths in, static import
+graph, transitive affected *_test.v set out. Pure V, no subprocesses in the
+library; the CLI's only subprocess is `git diff --name-only <base>`.
+
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
 ## 1. Think Before Coding
@@ -65,12 +71,6 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 ## 5. V Rules
-
-# vaffected
-
-"Run only what a change can affect": changed .v paths in, static import
-graph, transitive affected *_test.v set out. Pure V, no subprocesses in the
-library; the CLI's only subprocess is `git diff --name-only <base>`.
 
 V-specific rules. Full reference: `../v-release-052/v/AGENTS.md`.
 

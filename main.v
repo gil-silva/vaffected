@@ -1,13 +1,25 @@
 // vaffected CLI — print the test files a change can actually affect.
-// Build: v .   (→ bin/vaffected)    Run: vaffected [root] [base]   (default: '.', 'HEAD')
+// Build: v .   (→ bin/vaffected)
+// Run:   vaffected [--run] [root] [base]   (defaults: '.', 'HEAD')
+//   --run hands the affected test files straight to `v test` and propagates
+//   its exit code; without it the affected set is printed, one per line.
 module main
 
 import os
 import vaffected
 
 fn main() {
-	root := if os.args.len > 1 { os.args[1] } else { '.' }
-	base := if os.args.len > 2 { os.args[2] } else { 'HEAD' }
+	mut run := false
+	mut positional := []string{}
+	for arg in os.args[1..] {
+		if arg == '--run' {
+			run = true
+		} else {
+			positional << arg
+		}
+	}
+	root := if positional.len > 0 { positional[0] } else { '.' }
+	base := if positional.len > 1 { positional[1] } else { 'HEAD' }
 
 	// Changed source paths come from git; the library stays pure V and
 	// receives them as data, exactly like vrepo receives its root.
@@ -41,5 +53,13 @@ fn main() {
 		println('no affected tests (nothing to re-run)')
 		return
 	}
-	print(out)
+	if !run {
+		print(out)
+		return
+	}
+	files := out.split('\n').filter(it.len > 0)
+	println('running v test ${files.join(' ')}')
+	t := os.exec(['v', 'test', ...files])
+	print(t.output)
+	exit(t.exit_code)
 }

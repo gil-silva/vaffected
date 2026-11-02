@@ -41,6 +41,8 @@ committed-to-`base` changes alike. Empty result prints
 ```bash
 bin/vaffected . HEAD~1     # tests touched by the last commit
 bin/vaffected testdata | head    # never scans fixture data by default
+bin/vaffected --run        # straight to `v test` on the affected files,
+                           # propagating its exit code
 ```
 
 ## Library
