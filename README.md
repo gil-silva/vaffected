@@ -12,6 +12,20 @@ Written in V. Pure V (no subprocesses in the library), same philosophy as
 [vrepo](https://github.com/gil-silva/vrepo) and
 [v-mcp-server](https://github.com/gil-silva/v-mcp-server). MIT.
 
+## Install
+
+```bash
+v install gil-silva.vaffected   # hyphenated VPM name, as indexed on vpm
+# — or, immediately after a push, before the registry index catches up:
+v install https://github.com/gil-silva/vaffected
+```
+
+The import path depends on which install you used:
+the indexed install imports as `gil_silva.vaffected.vaffected` (grouped
+layout, like `crystallib.core`; VPM normalizes the dashed GitHub name to
+`gil_silva` for V), the direct-URL install as `vaffected.vaffected`. Both
+resolve to the same `vaffected` module.
+
 ## How it works
 
 1. Scan every `.v` file under the project root; parse its `module` and
@@ -47,10 +61,11 @@ bin/vaffected --run        # straight to `v test` on the affected files,
 
 ## Library
 
-The same machinery is importable as `vaffected`:
+The same machinery is importable (import path by install mode — see Install
+above):
 
 ```v
-import vaffected
+import gil_silva.vaffected.vaffected
 
 report := vaffected.affected_report(root, changed_paths)!
 files := vaffected.collect_files(root)!
