@@ -56,7 +56,11 @@ report := vaffected.affected_report(root, changed_paths)!
 files := vaffected.collect_files(root)!
 ```
 
-## Roadmap
+## Known limitations
 
-- `--run`: pass the affected files straight to `v test`
-- an MCP tool peer of `v_repo_brief` in the `vlang` server once stable
+- Multi-line `import (` … `)` blocks aren't parsed — imports declared that way
+  don't create dependency edges, which under-reports affected tests.
+  Single-line `import pkg` declarations (the common style) are fully covered.
+- Deleted files show up in `git diff` with paths that no longer exist; their
+  packages are still seeded, so dependents rerun — direction is conservative.
+
